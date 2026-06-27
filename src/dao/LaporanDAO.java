@@ -3,57 +3,50 @@ package dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import config.DatabaseConnection; // Memastikan import package config benar
+import config.DatabaseConnection; 
 
 public class LaporanDAO {
 
-    // 1. BACKEND: Menyimpan Laporan Baru dari Mahasiswa ke MySQL
-    public boolean insertLaporan(String judulLaporan, int idMahasiswa, int idKategori) {
-        String query = "INSERT INTO laporan (judul_laporan, status, id_mahasiswa, id_kategori) VALUES (?, 'Pending', ?, ?)";
-        
-        // Memanggil langsung method static getConnection() dari class DatabaseConnection
-        try (Connection conn = DatabaseConnection.getConnection()) {
-            PreparedStatement stmt = conn.prepareStatement(query);
-            stmt.setString(1, judulLaporan);
-            stmt.setInt(2, idMahasiswa);
-            stmt.setInt(3, idKategori);
-            
-            int barisTersimpan = stmt.executeUpdate();
-            return barisTersimpan > 0;
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return false;
+    // 1. BACKEND: Menyimpan Laporan Baru dari Mahasiswa ke MySQL (Mengembalikan ID Laporan murni berupa int)
+    public int insertLaporan(String judulLaporan, String idMahasiswa, int idKategori) {
+    String query = "INSERT INTO laporan (judul_laporan, status, id_mahasiswa, id_kategori) VALUES (?, 'Pending', ?, ?)";
+    try (Connection conn = DatabaseConnection.getConnection()) {
+        PreparedStatement stmt = conn.prepareStatement(query, java.sql.Statement.RETURN_GENERATED_KEYS);
+        stmt.setString(1, judulLaporan);
+        stmt.setString(2, idMahasiswa); // Menggunakan setString
+        stmt.setInt(3, idKategori);
+        if (stmt.executeUpdate() > 0) {
+            ResultSet rs = stmt.getGeneratedKeys();
+            if (rs.next()) return rs.getInt(1);
         }
-    }
+    } catch (Exception ex) { ex.printStackTrace(); }
+    return 0;
+}
 
-    // 2. BACKEND: Mengambil Seluruh Daftar Laporan dari MySQL untuk Dashboard
-    public List<Map<String, Object>> ambilSemuaLaporan() {
-        List<Map<String, Object>> daftarLaporan = new ArrayList<>();
-        String query = "SELECT * FROM laporan";
-        
-        try (Connection conn = DatabaseConnection.getConnection()) {
-            PreparedStatement stmt = conn.prepareStatement(query);
-            ResultSet rs = stmt.executeQuery();
-            
-            while (rs.next()) {
-                Map<String, Object> laporan = new HashMap<>();
-                laporan.put("id_laporan", rs.getInt("id_laporan"));
-                laporan.put("judul_laporan", rs.getString("judul_laporan"));
-                laporan.put("status", rs.getString("status"));
-                laporan.put("id_mahasiswa", rs.getInt("id_mahasiswa"));
-                laporan.put("id_kategori", rs.getInt("id_kategori"));
-                
-                daftarLaporan.add(laporan);
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
+public List<Map<String, Object>> ambilRiwayatLaporan(String idMahasiswa) {
+    List<Map<String, Object>> listRiwayat = new ArrayList<>();
+    String query = "SELECT l.id_laporan, l.judul_laporan, l.status, k.nama_kategori FROM laporan l " +
+                   "JOIN kategori k ON l.id_kategori = k.id_kategori WHERE l.id_mahasiswa = ?";
+    try (Connection conn = DatabaseConnection.getConnection()) {
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setString(1, idMahasiswa); // Menggunakan setString
+        ResultSet rs = stmt.executeQuery();
+        while (rs.next()) {
+            Map<String, Object> row = new HashMap<>();
+            row.put("id_laporan", rs.getInt("id_laporan"));
+            row.put("judul", rs.getString("judul_laporan"));
+            row.put("status", rs.getString("status"));
+            row.put("kategori", rs.getString("nama_kategori"));
+            listRiwayat.add(row);
         }
-        return daftarLaporan;
-    }
+    } catch (Exception ex) { ex.printStackTrace(); }
+    return listRiwayat;
+}
 
     // 3. BACKEND: Mengubah Status Pengaduan (Aksi Tombol oleh Admin)
     public boolean updateStatusLaporan(int idLaporan, String statusBaru) {
@@ -70,5 +63,31 @@ public class LaporanDAO {
             ex.printStackTrace();
             return false;
         }
+    }
+
+    // 4. FUNGSI RIWAYAT: Menarik daftar keluhan khusus mahasiswa tertentu
+    public List<Map<String, Object>> ambilRiwayatLaporan(long idMahasiswa) {
+        List<Map<String, Object>> listRiwayat = new ArrayList<>();
+        String query = "SELECT l.id_laporan, l.judul_laporan, l.status, k.nama_kategori " +
+                       "FROM laporan l JOIN kategori k ON l.id_kategori = k.id_kategori " +
+                       "WHERE l.id_mahasiswa = ?";
+        
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setLong(1, idMahasiswa);
+            ResultSet rs = stmt.executeQuery();
+            
+            while (rs.next()) {
+                Map<String, Object> row = new HashMap<>();
+                row.put("id_laporan", rs.getInt("id_laporan"));
+                row.put("judul", rs.getString("judul_laporan"));
+                row.put("status", rs.getString("status"));
+                row.put("kategori", rs.getString("nama_kategori"));
+                listRiwayat.add(row);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return listRiwayat;
     }
 }
