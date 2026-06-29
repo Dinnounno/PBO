@@ -177,11 +177,16 @@ public class LoginForm extends JFrame {
         AdminDAO adminDAO = new AdminDAO();
         if (adminDAO.cekLogin(usernameInput, passwordInput)) {
             JOptionPane.showMessageDialog(this, "Mode Admin diaktifkan.", "Login Sukses", JOptionPane.INFORMATION_MESSAGE);
-            // new DashboardAdminForm().setVisible(true); // Jika dashboard admin sudah ada
+            
+            // JALUR PANGGIL PANEL ADMIN BARU KAMU:
+            new DashboardAdminForm().setVisible(true); 
+            
             this.dispose();
         } else {
             JOptionPane.showMessageDialog(this, "Kredensial admin salah.", "Akses Ditolak", JOptionPane.ERROR_MESSAGE);
         }
     }
     }
+
 }
+

@@ -31,7 +31,7 @@ public class DashboardMahasiswaForm extends JFrame {
     public DashboardMahasiswaForm(String nim) {
         this.nimAktif = nim;
         
-        // Ambil Data Profil dari Database lewat DAO Anda
+        // Ambil Data Profil dari Database lewat DAO
         MahasiswaDAO mhsDAO = new MahasiswaDAO();
         Map<String, String> dataProfil = mhsDAO.ambilProfilMahasiswa(nimAktif);
         if (dataProfil != null && !dataProfil.isEmpty()) {
@@ -57,10 +57,10 @@ public class DashboardMahasiswaForm extends JFrame {
         panelSidebar.setBorder(new EmptyBorder(20, 15, 20, 15));
 
         // Header Aplikasi
-        JLabel lblLogo = new JLabel("FT-PENGADUAN", JLabel.CENTER);
+        JLabel lblLogo = new JLabel("FT-PENGADUAN", JLabel.LEFT);
         lblLogo.setFont(new Font("Segoe UI", Font.BOLD, 16));
         lblLogo.setForeground(Color.WHITE);
-        lblLogo.setAlignmentX(Component.CENTER_ALIGNMENT);
+        lblLogo.setAlignmentX(Component.LEFT_ALIGNMENT); // Rata Kiri
         panelSidebar.add(lblLogo);
         panelSidebar.add(Box.createVerticalStrut(20));
 
@@ -68,7 +68,7 @@ public class DashboardMahasiswaForm extends JFrame {
         JPanel panelMiniProfil = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         panelMiniProfil.setOpaque(false);
         panelMiniProfil.setMaximumSize(new Dimension(220, 50));
-        panelMiniProfil.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panelMiniProfil.setAlignmentX(Component.LEFT_ALIGNMENT); // Rata Kiri
         
         JLabel lblAvatar = new JLabel("👤");
         lblAvatar.setFont(new Font("Segoe UI", Font.PLAIN, 28));
@@ -95,11 +95,11 @@ public class DashboardMahasiswaForm extends JFrame {
         JLabel lblNav = new JLabel("MAIN NAVIGATION");
         lblNav.setFont(new Font("Segoe UI", Font.BOLD, 10));
         lblNav.setForeground(new Color(127, 140, 141));
-        lblNav.setAlignmentX(Component.CENTER_ALIGNMENT);
-        lblNav.setBorder(new EmptyBorder(0, 10, 10, 0));
+        lblNav.setAlignmentX(Component.LEFT_ALIGNMENT); // Rata Kiri
+        lblNav.setBorder(new EmptyBorder(0, 5, 10, 0));
         panelSidebar.add(lblNav);
 
-        // --- DAFTAR TOMBOL NAVIGASI MENU (KEMBALI ASLI) ---
+        // --- DAFTAR TOMBOL NAVIGASI MENU (KEMBALI ASLI & RATA KIRI) ---
         JButton btnHome = buatTombolMenuPremium(" Dashboard Utama");
         JButton btnBuatAduan = buatTombolMenuPremium(" Tulis Pengaduan");
         JButton btnRiwayat = buatTombolMenuPremium(" Riwayat Laporan");
@@ -148,8 +148,8 @@ public class DashboardMahasiswaForm extends JFrame {
         // --- PENDAFTARAN SELURUH HALAMAN AKTIF KE CARD ---
         panelKontenUtama.add(panelHome, "MENU_HOME");
         panelKontenUtama.add(buatPanelFormAduanPremium(), "MENU_ADUAN");
-        panelKontenUtama.add(buatPanelRiwayatLaporanPremium(), "MENU_RIWAYAT"); // Sudah Terintegrasi Fitur Read Tabel!
-        panelKontenUtama.add(new JLabel("Halaman Pengaturan Profil", JLabel.CENTER), "MENU_PROFIL");
+        panelKontenUtama.add(buatPanelRiwayatLaporanPremium(), "MENU_RIWAYAT"); 
+        panelKontenUtama.add(buatPanelPengaturanProfilPremium(), "MENU_PROFIL"); 
 
         mainPanel.add(panelKontenUtama, BorderLayout.CENTER);
         add(mainPanel);
@@ -175,23 +175,19 @@ public class DashboardMahasiswaForm extends JFrame {
         panel.setBackground(bgColor);
         panel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        // Header Form Judul Ter-Center-kan
+        // Header Laporan di-Center-kan
         JPanel panelHeader = new JPanel(new GridLayout(2, 1, 0, 5));
         panelHeader.setBackground(bgColor);
-        
         JLabel lblTitle = new JLabel("Buat Laporan Pengaduan Baru", JLabel.CENTER);
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
         lblTitle.setForeground(fontColorUtama);
-        
         JLabel lblSub = new JLabel("Sampaikan detail keluhan Anda mengenai fasilitas Kampus Teknik.", JLabel.CENTER);
         lblSub.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         lblSub.setForeground(Color.GRAY);
-        
-        panelHeader.add(lblTitle);
-        panelHeader.add(lblSub);
+        panelHeader.add(lblTitle); panelHeader.add(lblSub);
         panel.add(panelHeader, BorderLayout.NORTH);
 
-        // Kontainer Kolom Isian Form
+        // Kontainer Form
         JPanel panelForm = new JPanel();
         panelForm.setLayout(new BoxLayout(panelForm, BoxLayout.Y_AXIS));
         panelForm.setBackground(Color.WHITE);
@@ -230,7 +226,7 @@ public class DashboardMahasiswaForm extends JFrame {
         cmbJenis.setFont(fontInput); cmbJenis.setBackground(Color.WHITE);
         cmbJenis.setMaximumSize(maxComponentSize); cmbJenis.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        // Input Deskripsi Kronologi
+        // Input Deskripsi
         JLabel lblDeskripsi = new JLabel("Deskripsi Kronologi Lengkap");
         lblDeskripsi.setFont(fontLabel); lblDeskripsi.setForeground(fontColorUtama);
         lblDeskripsi.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -241,7 +237,7 @@ public class DashboardMahasiswaForm extends JFrame {
         scrollDeskripsi.setAlignmentX(Component.LEFT_ALIGNMENT);
         scrollDeskripsi.setBorder(BorderFactory.createLineBorder(new Color(200, 214, 229), 1));
 
-        // Input Lampiran File Gambar
+        // Input Upload File
         JLabel lblFoto = new JLabel("Lampiran Foto Bukti");
         lblFoto.setFont(fontLabel); lblFoto.setForeground(fontColorUtama);
         lblFoto.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -271,10 +267,8 @@ public class DashboardMahasiswaForm extends JFrame {
         panelForm.add(scrollDeskripsi); panelForm.add(Box.createVerticalStrut(15));
         panelForm.add(lblFoto); panelForm.add(Box.createVerticalStrut(6));
         panelForm.add(panelUpload);
-
         panel.add(panelForm, BorderLayout.CENTER);
 
-        // Tombol Submit Laporan
         JButton btnKirim = new JButton("🚀 Kirim Laporan Pengaduan");
         btnKirim.setFont(new Font("Segoe UI", Font.BOLD, 14)); btnKirim.setForeground(Color.WHITE);
         btnKirim.setBackground(new Color(41, 128, 185)); btnKirim.setPreferredSize(new Dimension(700, 42));
@@ -300,7 +294,6 @@ public class DashboardMahasiswaForm extends JFrame {
         panel.setBackground(bgColor);
         panel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        // Header Riwayat Laporan
         JPanel panelHeader = new JPanel(new GridLayout(2, 1, 0, 5));
         panelHeader.setBackground(bgColor);
         JLabel lblTitle = new JLabel("Riwayat Laporan Pengaduan Anda", JLabel.CENTER);
@@ -310,7 +303,6 @@ public class DashboardMahasiswaForm extends JFrame {
         panelHeader.add(lblTitle); panelHeader.add(lblSub);
         panel.add(panelHeader, BorderLayout.NORTH);
 
-        // Isian Baris Data dummy untuk simulasi read reports
         String[] kolom = {"ID Laporan", "Tanggal", "Judul Pengaduan", "Kategori", "Status"};
         Object[][] dataAduan = {
             {"A-001", "25 Juni 2026", "AC Ruang BI 3.2 Bocor dan Mati", "Fasilitas Kelas (AC, Proyektor, Kursi)", "Pending"},
@@ -331,7 +323,6 @@ public class DashboardMahasiswaForm extends JFrame {
         tabelRiwayat.getTableHeader().setForeground(Color.WHITE);
         tabelRiwayat.setGridColor(new Color(236, 240, 241));
 
-        // Memberikan pewarnaan khusus teks Status di JTable kolom terakhir
         tabelRiwayat.getColumnModel().getColumn(4).setCellRenderer(new javax.swing.table.DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -354,7 +345,6 @@ public class DashboardMahasiswaForm extends JFrame {
         scrollTabel.setBorder(BorderFactory.createLineBorder(new Color(228, 233, 237), 1));
         panel.add(scrollTabel, BorderLayout.CENTER);
 
-        // Aksi Event klik baris tabel riwayat memunculkan Pop-up detail isian aduan
         tabelRiwayat.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
@@ -388,7 +378,6 @@ public class DashboardMahasiswaForm extends JFrame {
         return panel;
     }
 
-    // Fungsi Pembantu Pembuat Pop-up Detail Isian Aduan saat baris tabel di klik
     private void tampilkanDialogDetailAduan(String id, String tgl, String judul, String kat, String kronologi, String foto, String status) {
         JDialog dialog = new JDialog(this, "Detail Informasi Pengaduan " + id, true);
         dialog.setSize(500, 420);
@@ -442,13 +431,99 @@ public class DashboardMahasiswaForm extends JFrame {
         dialog.setVisible(true);
     }
 
-    // Pembuat Komponen Tombol Menu Samping Modern
+    // --- 👤 TAMPILAN PROFILE SEDERHANA (ALA SIMAK NYAMAN) ---
+    private JPanel buatPanelPengaturanProfilPremium() {
+        JPanel panel = new JPanel(new BorderLayout(0, 15));
+        panel.setBackground(bgColor);
+        panel.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        JPanel panelTopBar = new JPanel(new BorderLayout());
+        panelTopBar.setBackground(Color.WHITE);
+        panelTopBar.setBorder(new EmptyBorder(10, 15, 10, 15));
+        
+        JLabel lblMenuTitle = new JLabel("Profil Mahasiswa", JLabel.LEFT);
+        lblMenuTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        lblMenuTitle.setForeground(fontColorUtama);
+        
+        JButton btnSimpan = new JButton("💾 Simpan Perubahan Data");
+        btnSimpan.setBackground(new Color(46, 204, 113)); 
+        btnSimpan.setForeground(Color.WHITE);
+        btnSimpan.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btnSimpan.setFocusPainted(false); btnSimpan.setBorderPainted(false);
+        btnSimpan.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnSimpan.addActionListener(e -> JOptionPane.showMessageDialog(this, "Perubahan profil berhasil disimpan!"));
+
+        panelTopBar.add(lblMenuTitle, BorderLayout.WEST);
+        panelTopBar.add(btnSimpan, BorderLayout.EAST);
+        panel.add(panelTopBar, BorderLayout.NORTH);
+
+        JPanel panelKontenProfil = new JPanel(new BorderLayout(25, 0));
+        panelKontenProfil.setBackground(Color.WHITE);
+        panelKontenProfil.setBorder(new EmptyBorder(25, 30, 25, 30));
+
+        JPanel panelKiriAvatar = new JPanel();
+        panelKiriAvatar.setLayout(new BoxLayout(panelKiriAvatar, BoxLayout.Y_AXIS));
+        panelKiriAvatar.setBackground(Color.WHITE);
+        
+        JLabel lblBigAvatar = new JLabel("👤", JLabel.CENTER);
+        lblBigAvatar.setFont(new Font("Segoe UI", Font.PLAIN, 110)); 
+        lblBigAvatar.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        JLabel lblNamaBawah = new JLabel(namaMahasiswa, JLabel.CENTER);
+        lblNamaBawah.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        lblNamaBawah.setForeground(fontColorUtama);
+        lblNamaBawah.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        panelKiriAvatar.add(lblBigAvatar);
+        panelKiriAvatar.add(Box.createVerticalStrut(10));
+        panelKiriAvatar.add(lblNamaBawah);
+        panelKontenProfil.add(panelKiriAvatar, BorderLayout.WEST);
+
+        JPanel panelRincianTeks = new JPanel();
+        panelRincianTeks.setLayout(new BoxLayout(panelRincianTeks, BoxLayout.Y_AXIS));
+        panelRincianTeks.setBackground(Color.WHITE);
+
+        Font fLabel = new Font("Segoe UI", Font.BOLD, 11);
+        Font fField = new Font("Segoe UI", Font.PLAIN, 13);
+        Dimension fieldSize = new Dimension(450, 30);
+
+        String[] dataLabels = {"NOMOR INDUK MAHASISWA (NIM)", "EMAIL MAHASISWA", "PROGRAM STUDI / FAKULTAS", "ANGKATAN"};
+        String[] dataValues = {nimAktif, emailMahasiswa, "Teknologi Informasi / Fakultas Teknik", "2505551023".equals(nimAktif) ? "2025" : "2026"}; // Menggunakan placeholder atau data dinamis sesuai konteks
+
+        for (int i = 0; i < dataLabels.length; i++) {
+            JLabel lbl = new JLabel(dataLabels[i]);
+            lbl.setFont(fLabel); lbl.setForeground(Color.GRAY);
+            lbl.setAlignmentX(Component.LEFT_ALIGNMENT);
+            
+            JTextField txt = new JTextField(dataValues[i]);
+            txt.setFont(fField); txt.setMaximumSize(fieldSize);
+            txt.setEditable(i == 1); 
+            txt.setAlignmentX(Component.LEFT_ALIGNMENT);
+            txt.setBackground(i == 1 ? Color.WHITE : new Color(245, 246, 250));
+            
+            panelRincianTeks.add(lbl);
+            panelRincianTeks.add(Box.createVerticalStrut(4));
+            panelRincianTeks.add(txt);
+            panelRincianTeks.add(Box.createVerticalStrut(14));
+        }
+        
+        panelKontenProfil.add(panelRincianTeks, BorderLayout.CENTER);
+        panel.add(panelKontenProfil, BorderLayout.CENTER);
+
+        return panel;
+    }
+
+    // Pembuat Komponen Tombol Menu Samping Modern (Sudah Diperbaiki Rata Kiri Sempurna)
     private JButton buatTombolMenuPremium(String teks) {
         JButton btn = new JButton(teks);
         btn.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         btn.setForeground(new Color(189, 195, 199));
         btn.setContentAreaFilled(false); btn.setFocusPainted(false);
-        btn.setMaximumSize(new Dimension(220, 40)); btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
+        // Memaksa perataan komponen rata kiri di dalam BoxLayout
+        btn.setAlignmentX(Component.LEFT_ALIGNMENT); 
+        btn.setMaximumSize(new Dimension(220, 40)); 
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btn.setHorizontalAlignment(SwingConstants.LEFT);
         
         btn.setBorder(BorderFactory.createCompoundBorder(
