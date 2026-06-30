@@ -60,7 +60,7 @@ public class DashboardMahasiswaForm extends JFrame {
         JLabel lblLogo = new JLabel("FT-PENGADUAN", JLabel.LEFT);
         lblLogo.setFont(new Font("Segoe UI", Font.BOLD, 16));
         lblLogo.setForeground(Color.WHITE);
-        lblLogo.setAlignmentX(Component.LEFT_ALIGNMENT); // Rata Kiri
+        lblLogo.setAlignmentX(Component.LEFT_ALIGNMENT); // Pastikan Rata Kiri
         panelSidebar.add(lblLogo);
         panelSidebar.add(Box.createVerticalStrut(20));
 
@@ -149,7 +149,7 @@ public class DashboardMahasiswaForm extends JFrame {
         panelKontenUtama.add(panelHome, "MENU_HOME");
         panelKontenUtama.add(buatPanelFormAduanPremium(), "MENU_ADUAN");
         panelKontenUtama.add(buatPanelRiwayatLaporanPremium(), "MENU_RIWAYAT"); 
-        panelKontenUtama.add(buatPanelPengaturanProfilPremium(), "MENU_PROFIL"); 
+        panelKontenUtama.add(buatPanelPengaturanProfilPremium(), "MENU_PROFIL"); // Menghubungkan ke panel profil baru
 
         mainPanel.add(panelKontenUtama, BorderLayout.CENTER);
         add(mainPanel);
@@ -431,7 +431,7 @@ public class DashboardMahasiswaForm extends JFrame {
         dialog.setVisible(true);
     }
 
-    // --- 👤 TAMPILAN PROFILE SEDERHANA (ALA SIMAK NYAMAN) ---
+    // --- 👤 TAMPILAN PROFILE SEDERHANA (ALA SIMAK-NG NYAMAN) ---
     private JPanel buatPanelPengaturanProfilPremium() {
         JPanel panel = new JPanel(new BorderLayout(0, 15));
         panel.setBackground(bgColor);
@@ -488,7 +488,7 @@ public class DashboardMahasiswaForm extends JFrame {
         Dimension fieldSize = new Dimension(450, 30);
 
         String[] dataLabels = {"NOMOR INDUK MAHASISWA (NIM)", "EMAIL MAHASISWA", "PROGRAM STUDI / FAKULTAS", "ANGKATAN"};
-        String[] dataValues = {nimAktif, emailMahasiswa, "Teknologi Informasi / Fakultas Teknik", "2505551023".equals(nimAktif) ? "2025" : "2026"}; // Menggunakan placeholder atau data dinamis sesuai konteks
+        String[] dataValues = {nimAktif, emailMahasiswa, "Teknologi Informasi / Fakultas Teknik", "2505551023".equals(nimAktif) ? "2025" : "2026"};
 
         for (int i = 0; i < dataLabels.length; i++) {
             JLabel lbl = new JLabel(dataLabels[i]);
@@ -542,7 +542,7 @@ public class DashboardMahasiswaForm extends JFrame {
         return btn;
     }
 
-    // Kartu Statistik Dashboard Ber-Sudut Lengkung (Rounded Corner Card)
+    // Class Custom JComponent untuk Menggambar Kotak Ber-Sudut Lengkung + Ikon Orang Otomatis
     private class PanelMelengkungInfo extends JPanel {
         private String nilai, judul;
         private Color warnaDasar;
@@ -560,13 +560,21 @@ public class DashboardMahasiswaForm extends JFrame {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
+            // 1. Menggambar Background Kotak Melengkung
             g2.setColor(warnaDasar);
             g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 12, 12));
 
+            // 2. Menggambar Ikon Orang (👤) Semi Transparan di Pojok Kanan Atas
+            g2.setColor(new Color(255, 255, 255, 50)); 
+            g2.setFont(new Font("Segoe UI", Font.PLAIN, 42)); 
+            g2.drawString("👤", getWidth() - 55, 48);
+
+            // 3. Menulis Teks Angka Besar
             g2.setColor(Color.WHITE);
             g2.setFont(new Font("Segoe UI", Font.BOLD, 28));
             g2.drawString(nilai, 20, 45);
 
+            // 4. Menulis Teks Keterangan Label
             g2.setFont(new Font("Segoe UI", Font.PLAIN, 12));
             g2.drawString(judul, 20, 80);
 
