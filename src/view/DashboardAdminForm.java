@@ -6,6 +6,11 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.geom.RoundRectangle2D;
 
+import dao.DetailLaporanDAO;
+import dao.LaporanDAO;
+import java.util.List;
+import java.util.Map;
+
 public class DashboardAdminForm extends JFrame {
 
     // --- TEMA WARNA ADMIN PREMIUM (DARK SLATE & CRIMSON ACCENT) ---
@@ -104,11 +109,7 @@ public class DashboardAdminForm extends JFrame {
 
         // DATA TABEL PENGADUAN MASUK [READ]
         String[] kolom = {"ID Laporan", "NIM Pengirim", "Judul Keluhan", "Kategori", "Status Current"};
-        Object[][] dataAduan = {
-            {"A-001", "2505551023", "AC Ruang BI 3.2 Bocor dan Mati", "Fasilitas Kelas", "Pending"},
-            {"A-002", "2505551040", "Komputer Lab SIM Hang massal saat praktikum", "Fasilitas Lab & Komputer", "Diproses"},
-            {"A-003", "2505551011", "Kran Air Toilet Lantai 2 Gedung Teknik Pecah", "Kebersihan Toilet", "Selesai"}
-        };
+        Object[][] dataAduan = {};
 
         tableModel = new DefaultTableModel(dataAduan, kolom) {
             @Override
@@ -157,21 +158,23 @@ public class DashboardAdminForm extends JFrame {
         JButton btnUpdateSelesai = new JButton("✅ Set 'Selesai'");
         btnUpdateSelesai.setBackground(warnaHijau); btnUpdateSelesai.setForeground(Color.WHITE);
 
-        JButton btnDeleteLaporan = new JButton("🗑️ Hapus Aduan");
-        btnDeleteLaporan.setBackground(warnaMerah); btnDeleteLaporan.setForeground(Color.WHITE);
+        JButton btnTolak = new JButton("Tolak");
+        btnTolak.setBackground(warnaMerah); btnTolak.setForeground(Color.WHITE);
 
         Dimension btnSize = new Dimension(160, 38);
-        btnUpdateProses.setPreferredSize(btnSize); btnUpdateSelesai.setPreferredSize(btnSize); btnDeleteLaporan.setPreferredSize(btnSize);
-        btnUpdateProses.setCursor(new Cursor(Cursor.HAND_CURSOR)); btnUpdateSelesai.setCursor(new Cursor(Cursor.HAND_CURSOR)); btnDeleteLaporan.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnUpdateProses.setPreferredSize(btnSize); btnUpdateSelesai.setPreferredSize(btnSize); btnTolak.setPreferredSize(btnSize);
+        btnUpdateProses.setCursor(new Cursor(Cursor.HAND_CURSOR)); btnUpdateSelesai.setCursor(new Cursor(Cursor.HAND_CURSOR)); btnTolak.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         panelAksiBawah.add(btnUpdateProses);
         panelAksiBawah.add(btnUpdateSelesai);
-        panelAksiBawah.add(btnDeleteLaporan);
+        panelAksiBawah.add(btnTolak);
         panelManajemen.add(panelAksiBawah, BorderLayout.SOUTH);
 
         panelKontenUtama.add(panelManajemen, "MENU_MANAJEMEN");
         mainPanel.add(panelKontenUtama, BorderLayout.CENTER);
         add(mainPanel);
+
+        loadDataTabel();
 
         // ========================================================
         // --- LOGIKA EVENT AKSI TOMBOL CRUD & POP-UP DETAIL ---
@@ -189,21 +192,18 @@ public class DashboardAdminForm extends JFrame {
                     String kategori = tableModel.getValueAt(barisTerpilih, 3).toString();
                     String status = tableModel.getValueAt(barisTerpilih, 4).toString();
                     
-                    String deskripsiKronologi = "";
-                    String namaFoto = "Tidak ada lampiran foto.";
-                    
-                    if(id.equals("A-001")) {
-                        deskripsiKronologi = "Sejak pagi hari air menetes deras dari casing AC bagian dalam kelas BI 3.2, hawa ruangan panas menyebabkan konsentrasi belajar terganggu.";
-                        namaFoto = "bukti_ac_bocor.jpg";
-                    } else if(id.equals("A-002")) {
-                        deskripsiKronologi = "Komputer nomor 05 s/d 12 tiba-tiba freeze total saat mahasiswa mencoba melakukan koneksi database master-slave di Ubuntu Server VirtualBox.";
-                        namaFoto = "lab_hang.png";
-                    } else {
-                        deskripsiKronologi = "Kran air di bilik tengah toilet cowok lantai 2 patah di bagian ulir, sehingga air terus mengalir mubazir membasahi seluruh lantai.";
-                        namaFoto = "toilet_ft.jpg";
-                    }
+                    DetailLaporanDAO detailDAO = new DetailLaporanDAO();
 
-                    tampilkanDialogDetailAduanAdmin(id, nimMhs, judul, kategori, deskripsiKronologi, namaFoto, status);
+                    Map<String, String> detail = detailDAO.getDetailLaporan(Integer.parseInt(id));
+
+                    String deskripsiKronologi =
+                            detail.getOrDefault("deskripsi", "Tidak ada deskripsi.");
+
+                    String namaFoto =
+                            detail.getOrDefault("bukti", "Tidak ada lampiran.");
+
+                    tampilkanDialogDetailAduanAdmin(id,nimMhs,judul,kategori,deskripsiKronologi,namaFoto, status);
+            
                 }
             }
         });
@@ -212,37 +212,70 @@ public class DashboardAdminForm extends JFrame {
         btnUpdateProses.addActionListener(e -> {
             int row = tabelAduanMasuk.getSelectedRow();
             if (row != -1) {
-                tableModel.setValueAt("Diproses", row, 4);
-                JOptionPane.showMessageDialog(this, "Status aduan berhasil diperbarui ke 'Diproses'!", "Update Sukses", JOptionPane.INFORMATION_MESSAGE);
+                int idLaporan = Integer.parseInt(
+                    tableModel.getValueAt(row, 0).toString()
+            );
+            LaporanDAO dao = new LaporanDAO();
+            if (dao.updateStatusLaporan(idLaporan, "Diproses")) {
+                loadDataTabel();
+                JOptionPane.showMessageDialog( this,"Status berhasil diubah menjadi Diproses!");
             } else {
-                JOptionPane.showMessageDialog(this, "Pilih baris laporan terlebih dahulu!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this,"Gagal mengubah status!");
             }
-        });
+            } else {
+                JOptionPane.showMessageDialog(this,"Pilih laporan terlebih dahulu!");
+
+        }
+
+    });
 
         // Logika UPDATE menjadi 'Selesai'
-        btnUpdateSelesai.addActionListener(e -> {
+       btnUpdateSelesai.addActionListener(e -> {
             int row = tabelAduanMasuk.getSelectedRow();
-            if (row != -1) {
-                tableModel.setValueAt("Selesai", row, 4);
-                JOptionPane.showMessageDialog(this, "Status aduan berhasil diselesaikan!", "Update Sukses", JOptionPane.INFORMATION_MESSAGE);
+        if (row != -1) {
+            int idLaporan = Integer.parseInt(tableModel.getValueAt(row, 0).toString());
+
+            LaporanDAO dao = new LaporanDAO();
+
+            if (dao.updateStatusLaporan(idLaporan, "Selesai")) {
+                loadDataTabel();
+
+                JOptionPane.showMessageDialog(this,"Status berhasil diubah menjadi Selesai!");
             } else {
-                JOptionPane.showMessageDialog(this, "Pilih baris laporan terlebih dahulu!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this,"Gagal mengubah status!");
             }
-        });
+            } else {
+                JOptionPane.showMessageDialog(this,"Pilih laporan terlebih dahulu!");
+
+            }
+
+    });
 
         // Logika DELETE Laporan
-        btnDeleteLaporan.addActionListener(e -> {
+        btnTolak.addActionListener(e -> {
+
             int row = tabelAduanMasuk.getSelectedRow();
             if (row != -1) {
-                int konfirmasi = JOptionPane.showConfirmDialog(this, "Apakah Anda yakin ingin menghapus laporan ini secara permanen?", "Hapus Data", JOptionPane.YES_NO_OPTION);
-                if (konfirmasi == JOptionPane.YES_OPTION) {
-                    tableModel.removeRow(row);
-                    JOptionPane.showMessageDialog(this, "Laporan pengaduan berhasil dihapus dari sistem!", "Delete Sukses", JOptionPane.INFORMATION_MESSAGE);
+                int idLaporan = Integer.parseInt(tableModel.getValueAt(row, 0).toString());
+                String alasan = JOptionPane.showInputDialog(this, "Masukkan alasan penolakan:");
+                if (alasan == null) return;
+                if (alasan.trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Alasan penolakan tidak boleh kosong!");
+                    return;
+                 }
+                LaporanDAO dao = new LaporanDAO();
+                if (dao.tolakLaporan(idLaporan, alasan)) {
+                    loadDataTabel();
+                    JOptionPane.showMessageDialog(this, "Laporan berhasil ditolak!");
+                } else {
+                    JOptionPane.showMessageDialog(this, "Gagal menolak laporan!");
                 }
-            } else {
-                JOptionPane.showMessageDialog(this, "Pilih baris laporan yang ingin dihapus!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+                } else {
+                JOptionPane.showMessageDialog(this, "Pilih laporan terlebih dahulu!");
+
             }
-        });
+
+         });
 
         // Logika Navigasi Keluar
         btnLogout.addActionListener(e -> {
@@ -321,4 +354,27 @@ public class DashboardAdminForm extends JFrame {
         ));
         return btn;
     }
+    
+    private void loadDataTabel() {
+
+        tableModel.setRowCount(0);
+
+        LaporanDAO laporanDAO = new LaporanDAO();
+
+        List<Map<String, Object>> daftarLaporan = laporanDAO.ambilSemuaLaporan();
+
+        for (Map<String, Object> laporan : daftarLaporan) {
+
+            tableModel.addRow(new Object[]{
+                    laporan.get("id_laporan"),
+                    laporan.get("id_mahasiswa"),
+                    laporan.get("judul"),
+                    laporan.get("kategori"),
+                    laporan.get("status")
+            });
+
+        }
+    }
+
 }
+
