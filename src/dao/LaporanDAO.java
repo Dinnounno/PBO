@@ -232,4 +232,26 @@ public List<Map<String, Object>> ambilRiwayatLaporan(String idMahasiswa) {
         }
         return listRiwayat;
     }
+    
+    public String getAlasanPenolakan(int idLaporan) {
+
+    String query = "SELECT alasan_penolakan FROM laporan WHERE id_laporan = ?";
+
+    try (Connection conn = DatabaseConnection.getConnection()) {
+
+        PreparedStatement stmt = conn.prepareStatement(query);
+        stmt.setInt(1, idLaporan);
+
+        ResultSet rs = stmt.executeQuery();
+
+        if (rs.next()) {
+            return rs.getString("alasan_penolakan");
+        }
+
+    } catch (Exception ex) {
+        ex.printStackTrace();
+    }
+
+    return "";
+}
 }

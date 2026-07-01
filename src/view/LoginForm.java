@@ -5,6 +5,8 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import dao.MahasiswaDAO;
 import dao.AdminDAO;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.SwingConstants;
 
 public class LoginForm extends JFrame {
     
@@ -96,6 +98,9 @@ public class LoginForm extends JFrame {
         cmbRole.setBackground(Color.WHITE);
         cmbRole.setMaximumSize(new Dimension(340, 35));
         cmbRole.setAlignmentX(Component.CENTER_ALIGNMENT);
+        DefaultListCellRenderer renderer = new DefaultListCellRenderer();
+        renderer.setHorizontalAlignment(SwingConstants.CENTER);
+        cmbRole.setRenderer(renderer);
 
         panelForm.add(lblUser); panelForm.add(Box.createVerticalStrut(6));
         panelForm.add(txtUsername); panelForm.add(Box.createVerticalStrut(15));
@@ -114,8 +119,10 @@ public class LoginForm extends JFrame {
 
         btnLogin = new JButton("Masuk Ke Sistem");
         btnLogin.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnLogin.setBackground(new Color(28, 54, 94));
         btnLogin.setForeground(Color.WHITE);
-        btnLogin.setBackground(accentColor);
+        btnLogin.setContentAreaFilled(true);
+        btnLogin.setOpaque(true);
         btnLogin.setMaximumSize(new Dimension(340, 40));
         btnLogin.setAlignmentX(Component.CENTER_ALIGNMENT);
         btnLogin.setFocusPainted(false);

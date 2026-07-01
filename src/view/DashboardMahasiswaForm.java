@@ -33,6 +33,7 @@ public class DashboardMahasiswaForm extends JFrame {
     private Color warnaMerah = new Color(231, 76, 60);
     private Color warnaUngu = new Color(155, 89, 182);
     private Color warnaKuning = new Color(241, 196, 15);
+    private Color warnaBiru = new Color(52, 152, 219);
 
     public DashboardMahasiswaForm(String nim) {
         this.nimAktif = nim;
@@ -156,10 +157,11 @@ public class DashboardMahasiswaForm extends JFrame {
         panelGridStats.setBackground(bgColor);
         panelGridStats.setPreferredSize(new Dimension(700, 115));
 
-        panelGridStats.add(new PanelMelengkungInfo(String.valueOf(totalLaporan), "Total Aduan", warnaHijau));
-        panelGridStats.add(new PanelMelengkungInfo(String.valueOf(pending), "Pending Laporan", warnaMerah));
+        panelGridStats.add(new PanelMelengkungInfo(String.valueOf(totalLaporan), "Total Aduan", warnaBiru));
+        panelGridStats.add(new PanelMelengkungInfo(String.valueOf(pending), "Pending Laporan", warnaKuning));
         panelGridStats.add(new PanelMelengkungInfo(String.valueOf(diproses), "Sedang Diproses", warnaUngu));
-        panelGridStats.add(new PanelMelengkungInfo(String.valueOf(selesai), "Selesai Diproses", warnaKuning));
+        panelGridStats.add(new PanelMelengkungInfo(String.valueOf(diproses), "Laporan Ditolak", warnaMerah));
+        panelGridStats.add(new PanelMelengkungInfo(String.valueOf(selesai), "Selesai Diproses", warnaHijau));
 
         panelHome.add(panelGridStats, BorderLayout.CENTER);
         
@@ -300,29 +302,26 @@ public class DashboardMahasiswaForm extends JFrame {
         btnKirim.setFocusPainted(false); btnKirim.setBorderPainted(false); btnKirim.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         btnKirim.addActionListener(e -> {
-            if (txtJudul.getText().trim().isEmpty() || txtDeskripsi.getText().trim().isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Kolom Judul dan Deskripsi tidak boleh kosong!", "Peringatan", JOptionPane.WARNING_MESSAGE);
-            } else {
 
-                LaporanDAO laporanDAO = new LaporanDAO();
-                DetailLaporanDAO detailDAO = new DetailLaporanDAO();
+            if (txtJudul.getText().trim().isEmpty() || txtDeskripsi.getText().trim().isEmpty() || lblNamaFile.getText().equals("Belum ada file terpilih (Opsional)")) {
+                JOptionPane.showMessageDialog(this,"Judul, Deskripsi, dan Foto Bukti wajib diisi!","Peringatan",JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
-                int idKategori = cmbJenis.getSelectedIndex() + 1;
+        LaporanDAO laporanDAO = new LaporanDAO();
+        DetailLaporanDAO detailDAO = new DetailLaporanDAO();
 
-                int idLaporan = laporanDAO.insertLaporan(
-                        txtJudul.getText().trim(),
-                        nimAktif,
-                        idKategori
-                );
+        int idKategori = cmbJenis.getSelectedIndex() + 1;
+
+        int idLaporan = laporanDAO.insertLaporan(txtJudul.getText().trim(),nimAktif,idKategori);
 
                 if (idLaporan > 0) {
 
                     boolean berhasil = detailDAO.insertDetailLaporan(
                             idLaporan,
                             txtDeskripsi.getText().trim(),
-                            lblNamaFile.getText().equals("Belum ada file terpilih (Opsional)")
-                                    ? null
-                                    : lblNamaFile.getText()
+                            lblNamaFile.getText()
+
                     );
 
                 if (berhasil) {
@@ -364,9 +363,9 @@ public class DashboardMahasiswaForm extends JFrame {
                         JOptionPane.ERROR_MESSAGE
                 );
 
-    }
-}
+            }
         });
+
         panel.add(btnKirim, BorderLayout.SOUTH);
 
         return panel;
@@ -411,8 +410,9 @@ public class DashboardMahasiswaForm extends JFrame {
                     String status = value.toString();
                     setHorizontalAlignment(JLabel.CENTER);
                     setFont(new Font("Segoe UI", Font.BOLD, 12));
-                    if (status.equalsIgnoreCase("Pending")) c.setForeground(warnaMerah);
+                    if (status.equalsIgnoreCase("Pending")) c.setForeground(warnaKuning);
                     else if (status.equalsIgnoreCase("Diproses")) c.setForeground(warnaUngu);
+                    else if (status.equalsIgnoreCase("Ditolak")) c.setForeground(warnaMerah);
                     else if (status.equalsIgnoreCase("Selesai")) c.setForeground(warnaHijau);
                 }
                 if (isSelected) c.setBackground(new Color(232, 244, 248));
@@ -436,19 +436,16 @@ public class DashboardMahasiswaForm extends JFrame {
                     String kategori = tableModel.getValueAt(barisTerpilih, 3).toString();
                     String status = tableModel.getValueAt(barisTerpilih, 4).toString();
                     
-                    String deskripsiKronologi = "";
-                    String namaFoto = "Tidak ada lampiran foto.";
-                    
-                    if(id.equals("A-001")) {
-                        deskripsiKronologi = "Sejak pagi hari air menetes deras dari casing AC bagian dalam kelas BI 3.2, hawa ruangan panas menyebabkan konsentrasi belajar terganggu.";
-                        namaFoto = "bukti_ac_bocor.jpg";
-                    } else if(id.equals("A-002")) {
-                        deskripsiKronologi = "Komputer nomor 05 s/d 12 tiba-tiba freeze total saat mahasiswa mencoba melakukan koneksi database master-slave di Ubuntu Server VirtualBox.";
-                        namaFoto = "lab_hang.png";
-                    } else {
-                        deskripsiKronologi = "Kran air di bilik tengah toilet cowok lantai 2 patah di bagian ulir, sehingga air terus mengalir mubazir membasahi seluruh lantai.";
-                        namaFoto = "toilet_ft.jpg";
-                    }
+                    DetailLaporanDAO detailDAO = new DetailLaporanDAO();
+
+                    Map<String, String> detail =
+                            detailDAO.getDetailLaporan(Integer.parseInt(id));
+
+                    String deskripsiKronologi =
+                            detail.getOrDefault("deskripsi", "Tidak ada deskripsi.");
+
+                    String namaFoto =
+                            detail.getOrDefault("bukti", "Tidak ada lampiran.");
 
                     tampilkanDialogDetailAduan(id, tanggal, judul, kategori, deskripsiKronologi, namaFoto, status);
                 }
@@ -465,7 +462,7 @@ public class DashboardMahasiswaForm extends JFrame {
         
         JPanel pnlMain = new JPanel();
         pnlMain.setLayout(new BoxLayout(pnlMain, BoxLayout.Y_AXIS));
-        pnlMain.setBorder(new EmptyBorder(20, 25, 20, 25));
+        pnlMain.setBorder(new EmptyBorder(20, 20, 20, 20));
         pnlMain.setBackground(Color.WHITE);
 
         Font fLbl = new Font("Segoe UI", Font.BOLD, 12);
@@ -479,28 +476,94 @@ public class DashboardMahasiswaForm extends JFrame {
             l.setAlignmentX(Component.LEFT_ALIGNMENT);
             pnlMain.add(l); pnlMain.add(Box.createVerticalStrut(4));
             
-            if(i == 3) {
-                JTextArea ta = new JTextArea(values[i]); ta.setFont(fVal); ta.setEditable(false);
-                ta.setLineWrap(true); ta.setWrapStyleWord(true); ta.setBackground(new Color(248, 249, 250));
+            if (i == 3) {
+                JTextArea ta = new JTextArea(values[i]);
+                ta.setFont(fVal);
+                ta.setEditable(false);
+                ta.setLineWrap(true);
+                ta.setWrapStyleWord(true);
+                ta.setBackground(new Color(248, 249, 250));
                 ta.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-                JScrollPane sp = new JScrollPane(ta); sp.setMaximumSize(new Dimension(450, 70));
+
+                JScrollPane sp = new JScrollPane(ta);
+                sp.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
+                sp.setPreferredSize(new Dimension(600, 70));
+                sp.setMaximumSize(new Dimension(Integer.MAX_VALUE, 70));
                 sp.setAlignmentX(Component.LEFT_ALIGNMENT);
+
                 pnlMain.add(sp);
+
             } else {
                 JLabel v = new JLabel(values[i]); v.setFont(fVal);
                 v.setAlignmentX(Component.LEFT_ALIGNMENT);
                 if(i == 5) {
                     v.setFont(new Font("Segoe UI", Font.BOLD, 14));
-                    if(status.equals("Pending")) v.setForeground(warnaMerah);
+                    if(status.equals("Pending")) v.setForeground(warnaKuning);
                     else if(status.equals("Diproses")) v.setForeground(warnaUngu);
-                    else v.setForeground(warnaHijau);
+                    else if(status.equals("Ditolak")) v.setForeground(warnaMerah);
+                    else if(status.equals("Selesai")) v.setForeground(warnaHijau);
                 } else { v.setForeground(Color.DARK_GRAY); }
                 pnlMain.add(v);
             }
             pnlMain.add(Box.createVerticalStrut(12));
         }
+        if (status.equals("Ditolak")) {
+            LaporanDAO dao = new LaporanDAO();
+            String alasan = dao.getAlasanPenolakan(Integer.parseInt(id));
+
+            JLabel lblAlasan = new JLabel("Alasan Penolakan:");
+            lblAlasan.setFont(fLbl);
+            lblAlasan.setForeground(fontColorUtama);
+            lblAlasan.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+            JTextArea txtAlasan = new JTextArea(alasan);
+            txtAlasan.setFont(fVal);
+            txtAlasan.setEditable(false);
+            txtAlasan.setLineWrap(true);
+            txtAlasan.setWrapStyleWord(true);
+            txtAlasan.setBackground(new Color(248, 249, 250));
+            txtAlasan.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+            JScrollPane spAlasan = new JScrollPane(txtAlasan);
+            spAlasan.setMaximumSize(new Dimension(450, 70));
+            spAlasan.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+            pnlMain.add(lblAlasan);
+            pnlMain.add(Box.createVerticalStrut(4));
+            pnlMain.add(spAlasan);
+            pnlMain.add(Box.createVerticalStrut(12));
+
+        }
+
         JButton btnHapus = new JButton("🗑 Hapus Laporan");
         btnHapus.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnHapus.addActionListener(e -> {
+
+            if (!status.equals("Pending") && !status.equals("Ditolak")) {
+
+                JOptionPane.showMessageDialog(dialog,"Laporan yang sedang diproses atau sudah selesai tidak dapat dihapus!");
+            return;
+            }
+            int konfirmasi = JOptionPane.showConfirmDialog(dialog,"Apakah Anda yakin ingin menghapus laporan ini?","Konfirmasi Hapus",JOptionPane.YES_NO_OPTION);
+            if (konfirmasi == JOptionPane.YES_OPTION) {
+                int idLaporan = Integer.parseInt(id);
+                DetailLaporanDAO detailDAO = new DetailLaporanDAO();
+                LaporanDAO laporanDAO = new LaporanDAO();
+                detailDAO.deleteDetailLaporan(idLaporan);
+                if (laporanDAO.deleteLaporan(idLaporan)) {
+                    JOptionPane.showMessageDialog(dialog,"Laporan berhasil dihapus!");
+                    dialog.dispose();
+                    this.dispose();
+                    new DashboardMahasiswaForm(nimAktif).setVisible(true);
+                } else {
+                    JOptionPane.showMessageDialog(dialog,"Gagal menghapus laporan!");
+
+                }
+
+            }
+
+        });
+
         JButton btnTutup = new JButton("Tutup Detail");
         btnTutup.setAlignmentX(Component.LEFT_ALIGNMENT);
         btnTutup.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -517,12 +580,7 @@ public class DashboardMahasiswaForm extends JFrame {
         pnlMain.add(Box.createVerticalStrut(10));
         pnlMain.add(panelButton);
 
-        panelButton.add(btnHapus);
-        panelButton.add(btnTutup);
-
-        pnlMain.add(Box.createVerticalStrut(10));
-        pnlMain.add(panelButton);;
-
+        pnlMain.setAlignmentX(Component.LEFT_ALIGNMENT);
         dialog.add(pnlMain);
         dialog.setVisible(true);
     }

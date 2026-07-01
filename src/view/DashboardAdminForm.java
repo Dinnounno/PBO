@@ -134,8 +134,9 @@ public class DashboardAdminForm extends JFrame {
                     String status = value.toString();
                     setHorizontalAlignment(JLabel.CENTER);
                     setFont(new Font("Segoe UI", Font.BOLD, 12));
-                    if (status.equalsIgnoreCase("Pending")) c.setForeground(warnaMerah);
+                    if (status.equalsIgnoreCase("Pending")) c.setForeground(warnaKuning);
                     else if (status.equalsIgnoreCase("Diproses")) c.setForeground(warnaUngu);
+                    else if (status.equalsIgnoreCase("Ditolak")) c.setForeground(warnaMerah);
                     else if (status.equalsIgnoreCase("Selesai")) c.setForeground(warnaHijau);
                 }
                 if (isSelected) c.setBackground(new Color(232, 244, 248));
@@ -153,13 +154,13 @@ public class DashboardAdminForm extends JFrame {
         panelAksiBawah.setBackground(bgColor);
 
         JButton btnUpdateProses = new JButton("⚙️ Set 'Diproses'");
-        btnUpdateProses.setBackground(warnaUngu); btnUpdateProses.setForeground(Color.WHITE);
+        btnUpdateProses.setBackground(warnaUngu); btnUpdateProses.setForeground(Color.BLACK);
         
         JButton btnUpdateSelesai = new JButton("✅ Set 'Selesai'");
-        btnUpdateSelesai.setBackground(warnaHijau); btnUpdateSelesai.setForeground(Color.WHITE);
+        btnUpdateSelesai.setBackground(warnaHijau); btnUpdateSelesai.setForeground(Color.BLACK);
 
         JButton btnTolak = new JButton("Tolak");
-        btnTolak.setBackground(warnaMerah); btnTolak.setForeground(Color.WHITE);
+        btnTolak.setBackground(warnaMerah); btnTolak.setForeground(Color.BLACK);
 
         Dimension btnSize = new Dimension(160, 38);
         btnUpdateProses.setPreferredSize(btnSize); btnUpdateSelesai.setPreferredSize(btnSize); btnTolak.setPreferredSize(btnSize);
