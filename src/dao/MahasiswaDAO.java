@@ -64,4 +64,22 @@ public class MahasiswaDAO {
         }
         return profil;
     }
+    //mahasiswa dapat mengubah data
+    public boolean updateEmail(String nim, String email) {
+    String sql = "UPDATE mahasiswa SET email = ? WHERE id_mahasiswa = ?";
+
+    try (
+        Connection conn = DatabaseConnection.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql)
+    ) {
+        ps.setString(1, email);
+        ps.setString(2, nim);
+
+        return ps.executeUpdate() > 0;
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return false;
+        }
+    }
 }

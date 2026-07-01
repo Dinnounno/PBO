@@ -55,8 +55,8 @@ public class DashboardAdminForm extends JFrame {
         panelSidebar.add(Box.createVerticalStrut(25));
 
         // Badge Status Admin
-        JLabel lblAdminBadge = new JLabel("👑 Administrator Mode");
-        lblAdminBadge.setFont(new Font("Segoe UI", Font.ITALIC, 12));
+        JLabel lblAdminBadge = new JLabel("Administrator Mode");
+        lblAdminBadge.setFont(new Font("Segoe UI", Font.BOLD, 12));
         lblAdminBadge.setForeground(Color.LIGHT_GRAY);
         lblAdminBadge.setAlignmentX(Component.LEFT_ALIGNMENT);
         panelSidebar.add(lblAdminBadge);
@@ -153,13 +153,13 @@ public class DashboardAdminForm extends JFrame {
         JPanel panelAksiBawah = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         panelAksiBawah.setBackground(bgColor);
 
-        JButton btnUpdateProses = new JButton("⚙️ Set 'Diproses'");
+        JButton btnUpdateProses = new JButton("Set 'Diproses'");
         btnUpdateProses.setBackground(warnaUngu); btnUpdateProses.setForeground(Color.BLACK);
         
-        JButton btnUpdateSelesai = new JButton("✅ Set 'Selesai'");
+        JButton btnUpdateSelesai = new JButton("Set 'Selesai'");
         btnUpdateSelesai.setBackground(warnaHijau); btnUpdateSelesai.setForeground(Color.BLACK);
 
-        JButton btnTolak = new JButton("Tolak");
+        JButton btnTolak = new JButton("Set 'Ditolak'");
         btnTolak.setBackground(warnaMerah); btnTolak.setForeground(Color.BLACK);
 
         Dimension btnSize = new Dimension(160, 38);

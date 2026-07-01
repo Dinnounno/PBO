@@ -119,7 +119,7 @@ public class LoginForm extends JFrame {
 
         btnLogin = new JButton("Masuk Ke Sistem");
         btnLogin.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btnLogin.setBackground(new Color(28, 54, 94));
+        btnLogin.setBackground(new Color(41, 128, 185));
         btnLogin.setForeground(Color.WHITE);
         btnLogin.setContentAreaFilled(true);
         btnLogin.setOpaque(true);

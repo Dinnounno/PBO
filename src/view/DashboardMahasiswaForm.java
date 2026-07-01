@@ -10,11 +10,14 @@ import dao.LaporanDAO;
 import dao.DetailLaporanDAO;
 import java.util.List;
 
+
 public class DashboardMahasiswaForm extends JFrame {
 
     private String nimAktif;
     private String namaMahasiswa = "Mahasiswa FT";
     private String emailMahasiswa = "-";
+    private JTextField txtEmail;
+
     
     private JLabel lblWelcome;
     private JPanel panelKontenUtama;
@@ -270,7 +273,7 @@ public class DashboardMahasiswaForm extends JFrame {
         lblFoto.setAlignmentX(Component.LEFT_ALIGNMENT);
         JButton btnPilihFoto = new JButton("📁 Pilih File Gambar");
         btnPilihFoto.setFont(new Font("Segoe UI", Font.PLAIN, 12)); btnPilihFoto.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        JLabel lblNamaFile = new JLabel("Belum ada file terpilih (Opsional)");
+        JLabel lblNamaFile = new JLabel("Belum ada file terpilih");
         lblNamaFile.setFont(new Font("Segoe UI", Font.ITALIC, 12)); lblNamaFile.setForeground(Color.GRAY);
         
         JPanel panelUpload = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
@@ -296,13 +299,14 @@ public class DashboardMahasiswaForm extends JFrame {
         panelForm.add(panelUpload);
         panel.add(panelForm, BorderLayout.CENTER);
 
-        JButton btnKirim = new JButton("🚀 Kirim Laporan Pengaduan");
+        JButton btnKirim = new JButton("Kirim Laporan Pengaduan");
         btnKirim.setFont(new Font("Segoe UI", Font.BOLD, 14)); btnKirim.setForeground(Color.WHITE);
         btnKirim.setBackground(new Color(41, 128, 185)); btnKirim.setPreferredSize(new Dimension(700, 42));
+        btnKirim.setOpaque(true );
+        btnKirim.setContentAreaFilled(rootPaneCheckingEnabled);
         btnKirim.setFocusPainted(false); btnKirim.setBorderPainted(false); btnKirim.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         btnKirim.addActionListener(e -> {
-
             if (txtJudul.getText().trim().isEmpty() || txtDeskripsi.getText().trim().isEmpty() || lblNamaFile.getText().equals("Belum ada file terpilih (Opsional)")) {
                 JOptionPane.showMessageDialog(this,"Judul, Deskripsi, dan Foto Bukti wajib diisi!","Peringatan",JOptionPane.WARNING_MESSAGE);
             return;
@@ -457,19 +461,19 @@ public class DashboardMahasiswaForm extends JFrame {
 
     private void tampilkanDialogDetailAduan(String id, String tgl, String judul, String kat, String kronologi, String foto, String status) {
         JDialog dialog = new JDialog(this, "Detail Informasi Pengaduan " + id, true);
-        dialog.setSize(500, 420);
+        dialog.setSize(520, 450);
         dialog.setLocationRelativeTo(this);
-        
+
         JPanel pnlMain = new JPanel();
         pnlMain.setLayout(new BoxLayout(pnlMain, BoxLayout.Y_AXIS));
-        pnlMain.setBorder(new EmptyBorder(20, 20, 20, 20));
+        pnlMain.setBorder(new EmptyBorder(20, 25, 20, 25));
         pnlMain.setBackground(Color.WHITE);
 
         Font fLbl = new Font("Segoe UI", Font.BOLD, 12);
         Font fVal = new Font("Segoe UI", Font.PLAIN, 13);
-        
-        String[] labels = {"ID & Tanggal Laporan:", "Judul Keluhan:", "Kategori Keluhan:", "Kronologi Lengkap:", "Lampiran Berkas Bukti:", "Status Validasi:"};
-        String[] values = {id + "   |   " + tgl, judul, kat, kronologi, "📁 " + foto, status};
+
+        String[] labels = {"ID & Tanggal:","Judul Keluhan:","Kategori Keluhan:","Kronologi Lengkap:","Lampiran Berkas Bukti:","Status Validasi:"};
+        String[] values = {id + "   |   " + tgl,judul,kat,kronologi,"📁 " + foto,status};
 
         for (int i = 0; i < labels.length; i++) {
             JLabel l = new JLabel(labels[i]); l.setFont(fLbl); l.setForeground(fontColorUtama);
@@ -486,9 +490,10 @@ public class DashboardMahasiswaForm extends JFrame {
                 ta.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
                 JScrollPane sp = new JScrollPane(ta);
-                sp.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
-                sp.setPreferredSize(new Dimension(600, 70));
-                sp.setMaximumSize(new Dimension(Integer.MAX_VALUE, 70));
+                sp.setBorder(BorderFactory.createLineBorder(new Color(220,220,220)));
+                sp.setPreferredSize(new Dimension(470, 75));
+                sp.setMaximumSize(new Dimension(520, 75));
+                sp.setMinimumSize(new Dimension(470, 75));
                 sp.setAlignmentX(Component.LEFT_ALIGNMENT);
 
                 pnlMain.add(sp);
@@ -598,14 +603,26 @@ public class DashboardMahasiswaForm extends JFrame {
         JLabel lblMenuTitle = new JLabel("Profil Mahasiswa", JLabel.LEFT);
         lblMenuTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
         lblMenuTitle.setForeground(fontColorUtama);
-        
+
         JButton btnSimpan = new JButton("💾 Simpan Perubahan Data");
         btnSimpan.setBackground(new Color(46, 204, 113)); 
         btnSimpan.setForeground(Color.WHITE);
+        btnSimpan.setOpaque(true);
+        btnSimpan.setContentAreaFilled(true);
         btnSimpan.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnSimpan.setFocusPainted(false); btnSimpan.setBorderPainted(false);
         btnSimpan.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnSimpan.addActionListener(e -> JOptionPane.showMessageDialog(this, "Perubahan profil berhasil disimpan!"));
+        btnSimpan.addActionListener(e -> {
+            MahasiswaDAO dao = new MahasiswaDAO();
+            boolean berhasil = dao.updateEmail(nimAktif,txtEmail.getText().trim());
+            if (berhasil) {
+                emailMahasiswa = txtEmail.getText().trim();
+                JOptionPane.showMessageDialog(this,"Perubahan profil berhasil disimpan!");
+            } else {
+                JOptionPane.showMessageDialog(this,"Gagal menyimpan perubahan!");
+            }
+
+        });
 
         panelTopBar.add(lblMenuTitle, BorderLayout.WEST);
         panelTopBar.add(btnSimpan, BorderLayout.EAST);
@@ -649,7 +666,14 @@ public class DashboardMahasiswaForm extends JFrame {
             lbl.setFont(fLabel); lbl.setForeground(Color.GRAY);
             lbl.setAlignmentX(Component.LEFT_ALIGNMENT);
             
-            JTextField txt = new JTextField(dataValues[i]);
+            JTextField txt;
+            if (i == 1) {
+                txtEmail = new JTextField(dataValues[i]);
+                txt = txtEmail;
+            }else{
+                txt = new JTextField(dataValues[i]);
+            }
+
             txt.setFont(fField); txt.setMaximumSize(fieldSize);
             txt.setEditable(i == 1); 
             txt.setAlignmentX(Component.LEFT_ALIGNMENT);

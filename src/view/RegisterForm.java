@@ -137,6 +137,10 @@ public class RegisterForm extends JFrame {
         btnRegister.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btnRegister.setForeground(Color.WHITE);
         btnRegister.setBackground(accentColor);
+
+        btnRegister.setContentAreaFilled(true);
+        btnRegister.setOpaque(true);
+
         btnRegister.setMaximumSize(new Dimension(340, 40));
         btnRegister.setAlignmentX(Component.CENTER_ALIGNMENT);
         btnRegister.setFocusPainted(false);
@@ -188,7 +192,7 @@ public class RegisterForm extends JFrame {
             // 3. Langsung kirim nimStr berupa String murni ke backend MahasiswaDAO
             MahasiswaDAO mhsDAO = new MahasiswaDAO();
             if (mhsDAO.insertMahasiswa(nimStr, namaInput, passwordInput, emailInput)) {
-                JOptionPane.showMessageDialog(this, "Pendaftaran Berhasil! Silakan login kembali.", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Pendaftaran Berhasil! Silakan login kembali.", "Sukses", JOptionPane.PLAIN_MESSAGE);
                 new LoginForm().setVisible(true);
                 this.dispose();
             } else {
